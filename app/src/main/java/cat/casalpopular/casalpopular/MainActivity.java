@@ -1,5 +1,7 @@
 package cat.casalpopular.casalpopular;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -8,13 +10,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.roomorama.caldroid.CaldroidFragment;
 import com.roomorama.caldroid.CaldroidListener;
-import com.roomorama.caldroid.CalendarHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -37,11 +38,14 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final static String apiURL = "http://192.168.10.3:3000";
+    public final static String BASE_URL = "https://casalpopular.cat";
+    public final static String API_URL = BASE_URL+"/api";
+    //public final static String API_URL = "http://localhost:3000";
+
     Hashtable<Date,Event> eventsHash = new Hashtable<Date, Event>();
     private CustomCaldroidFragment caldroidFragment;
     private HashMap<String, Object> extraData;
-    private ArrayAdapter<Event> adapter;
+    private CustomArrayAdapter adapter;
     private CaldroidListener caldroidListener;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         caldroidFragment = new CustomCaldroidFragment();
         final ListView events_list = (ListView) findViewById(R.id.events_list);
         final ArrayList<Event> eventsArray = new ArrayList<Event>();
-        adapter = new ArrayAdapter<Event>(this, R.layout.events_list_item, eventsArray);
+        adapter = new CustomArrayAdapter(this, eventsArray);
         events_list.setAdapter(adapter);
 
         events_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -74,7 +78,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
                 final Event event = (Event) parent.getItemAtPosition(position);
-                Toast.makeText(getBaseContext(), event.toString(), Toast.LENGTH_SHORT).show();
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(BASE_URL+"/node/"+event.id));
+                startActivity(browserIntent);
+                //Toast.makeText(getBaseContext(), event.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -115,13 +121,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (eventsThisDay.size() > 0) {
                     adapter.clear();
+                    Collections.sort(eventsThisDay);
                     for (Event event : eventsThisDay) {
                         adapter.add(event);
-                        Toast.makeText(
-                                getApplicationContext(),
-                                event.title + ": " + event.description,
-                                Toast.LENGTH_LONG
-                        ).show();
+                        //Toast.makeText(
+                        //        getApplicationContext(),
+                        //        event.title + ": " + event.description,
+                        //        Toast.LENGTH_LONG
+                        //).show();
                     }
                 } else {
                     onChangeMonth(caldroidFragment.getMonth(), caldroidFragment.getYear());
@@ -140,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 adapter.clear();
+                Collections.sort(eventsThisMonth);
                 for (Event e : eventsThisMonth) {
                     adapter.add(e);
                 }
@@ -154,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         t.replace(R.id.calendari, caldroidFragment);
         t.commit();
 
-        new CallAPI().execute(apiURL + "/events.json");
+        new CallAPI().execute(API_URL + "/events.json");
     }
 
     @Override
@@ -185,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             for (Date from : eventsHash.keySet()) {
                 // mark days with events
                 if (caldroidFragment != null) {
-                    caldroidFragment.setBackgroundResourceForDate(R.color.caldroid_lighter_gray, from);
+                    caldroidFragment.setBackgroundResourceForDate(R.color.colorPrimary, from);
                     caldroidFragment.setTextColorForDate(R.color.caldroid_black, from);
                     extraData.put(dateFormat.format(from), eventsHash.get(from).title);
                 }
@@ -235,11 +243,8 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray events = (JSONArray) new JSONTokener(response).nextValue();
                 for (int i = 0; i < events.length(); i++) {
                     JSONObject row = events.getJSONObject(i);
-                    Date from = CalendarHelper.getDateFromString(
-                            row.getString("start"),"EEE, dd MMM yyyy HH:mm:ss Z"
-                    );
                     Event event = new Event(row);
-                    eventsHash.put(from, event);
+                    eventsHash.put(event.date, event);
                 }
                 populateEvents();
                 caldroidListener.onChangeMonth(caldroidFragment.getMonth(), caldroidFragment.getYear());
