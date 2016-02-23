@@ -3,8 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="cat.casalpopular.casalpopular.MainActivity">
     <item
+        android:id="@+id/action_today"
+        android:icon="@android:drawable/ic_menu_today"
+        android:title="@string/action_today"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_notify_me"
+        android:title="@string/notify_me"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:checkable="true" />
 </menu>

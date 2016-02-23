@@ -23,7 +23,11 @@ public class Event implements Comparable<Event> {
     public Event(JSONObject row) throws JSONException, ParseException {
         id = row.getString("id");
         title = row.getString("title");
-        description = row.getString("description");
+        if (row.has("description")) {
+            description = row.getString("description");
+        } else {
+            description = "";
+        }
         date = CalendarHelper.getDateFromString(
                 row.getString("date"), "EEE, dd MMM yyyy HH:mm:ss Z"
         );

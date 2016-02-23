@@ -1,11 +1,13 @@
 package cat.casalpopular.casalpopular;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,11 +50,15 @@ public class MainActivity extends AppCompatActivity {
     private CustomArrayAdapter adapter;
     private CaldroidListener caldroidListener;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        preferences = getPreferences(MODE_PRIVATE);
 
         caldroidFragment = new CustomCaldroidFragment();
         final ListView events_list = (ListView) findViewById(R.id.events_list);
@@ -124,11 +130,6 @@ public class MainActivity extends AppCompatActivity {
                     Collections.sort(eventsThisDay);
                     for (Event event : eventsThisDay) {
                         adapter.add(event);
-                        //Toast.makeText(
-                        //        getApplicationContext(),
-                        //        event.title + ": " + event.description,
-                        //        Toast.LENGTH_LONG
-                        //).show();
                     }
                 } else {
                     onChangeMonth(caldroidFragment.getMonth(), caldroidFragment.getYear());
@@ -140,10 +141,18 @@ public class MainActivity extends AppCompatActivity {
                 // populate events on list
                 ArrayList<Event> eventsThisMonth = new ArrayList<Event>();
                 for (Date date : eventsHash.keySet()) {
+                    Calendar today = Calendar.getInstance();
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(date);
                     if (cal.get(Calendar.YEAR) == year && cal.get(Calendar.MONTH)+1 == month) {
-                        eventsThisMonth.add(eventsHash.get(date));
+                        if (today.get(Calendar.YEAR) == year && today.get(Calendar.MONTH)+1 == month) {
+                            // current month, show only events to come
+                            if (today.get(Calendar.DAY_OF_MONTH) <= cal.get(Calendar.DAY_OF_MONTH)) {
+                                eventsThisMonth.add(eventsHash.get(date));
+                            }
+                        } else {
+                            eventsThisMonth.add(eventsHash.get(date));
+                        }
                     }
                 }
                 adapter.clear();
@@ -173,18 +182,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.action_notify_me).setChecked(preferences.getBoolean("notify_me", true));
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_today:
+                caldroidFragment.moveToDate(Calendar.getInstance().getTime());
+                return true;
+            case R.id.action_settings:
+                return true;
+            case R.id.action_notify_me:
+                if (item.isChecked()) {
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("notify_me", false);
+                    editor.apply();
+                    item.setChecked(false);
+                } else {
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("notify_me", true);
+                    editor.apply();
+                    item.setChecked(true);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     // populates events on calendar

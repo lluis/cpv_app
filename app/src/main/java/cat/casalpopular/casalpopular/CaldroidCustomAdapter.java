@@ -16,6 +16,10 @@ import java.util.Locale;
 
 import hirondelle.date4j.DateTime;
 
+import static com.caldroid.R.drawable.disable_cell;
+import static com.caldroid.R.drawable.red_border;
+import static com.caldroid.R.drawable.red_border_gray_bg;
+
 /**
  * Created by tictacbum on 01/02/16.
  */
@@ -67,13 +71,13 @@ public class CaldroidCustomAdapter extends CaldroidGridAdapter {
 
             tv1.setTextColor(CaldroidFragment.disabledTextColor);
             if (CaldroidFragment.disabledBackgroundDrawable == -1) {
-                cellView.setBackgroundResource(com.caldroid.R.drawable.disable_cell);
+                cellView.setBackgroundResource(disable_cell);
             } else {
                 cellView.setBackgroundResource(CaldroidFragment.disabledBackgroundDrawable);
             }
 
             if (dateTime.equals(getToday())) {
-                cellView.setBackgroundResource(com.caldroid.R.drawable.red_border_gray_bg);
+                cellView.setBackgroundResource(red_border_gray_bg);
             }
 
         } else {
@@ -94,7 +98,7 @@ public class CaldroidCustomAdapter extends CaldroidGridAdapter {
         if (shouldResetDiabledView && shouldResetSelectedView) {
             // Customize for today
             if (dateTime.equals(getToday())) {
-                cellView.setBackgroundResource(com.caldroid.R.drawable.red_border);
+                cellView.setBackgroundResource(red_border);
             } else {
                 cellView.setBackgroundResource(com.caldroid.R.drawable.cell_bg);
             }
@@ -121,7 +125,7 @@ public class CaldroidCustomAdapter extends CaldroidGridAdapter {
                 //tv2.setText("");
             }
         } catch (Exception e) {
-            System.out.println("alerta: " + e.getMessage());
+            System.out.println("error: " + e.getMessage());
         }
         return  cellView;
     }

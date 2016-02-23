@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Casal Popular</string>
     <string name="action_settings">Settings</string>
+    <string name="action_today">Today</string>
+    <string name="notify_me">Notify me</string>
 </resources>
