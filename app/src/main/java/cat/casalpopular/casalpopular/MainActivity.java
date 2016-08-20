@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.action_notify_me).setChecked(preferences.getBoolean("notify_me", true));
+//        menu.findItem(R.id.action_notify_me).setChecked(preferences.getBoolean("notify_me", true));
         return true;
     }
 
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_today:
                 caldroidFragment.moveToDate(Calendar.getInstance().getTime());
                 return true;
-            case R.id.action_settings:
+/**            case R.id.action_settings:
                 return true;
             case R.id.action_notify_me:
                 if (item.isChecked()) {
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
                     item.setChecked(true);
                 }
-                return true;
+                return true; */
             default:
                 return super.onOptionsItemSelected(item);
         }
