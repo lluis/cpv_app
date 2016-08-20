@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private CaldroidListener caldroidListener;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private SharedPreferences preferences;
+    private String connection_errors = new String();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -242,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             String urlString = params[0]; // URL to call
+            connection_errors = "";
 
             // HTTP Get
             try {
@@ -255,6 +257,11 @@ public class MainActivity extends AppCompatActivity {
                         stringBuilder.append(line).append("\n");
                     }
                     bufferedReader.close();
+                    // save events
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("events", stringBuilder.toString());
+                    editor.apply();
+
                     return stringBuilder.toString();
 
                 } finally {
@@ -262,13 +269,17 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                return e.getMessage();
+                connection_errors = "[ERROR] No puc connectar al servidor: " + e.toString();
+                // retrieve events
+                return preferences.getString("events","[]");
             }
         }
 
         protected void onPostExecute(String response) {
             try {
+                if ( connection_errors != "" ) {
+                    showError(connection_errors);
+                }
                 // populate events
                 JSONArray events = (JSONArray) new JSONTokener(response).nextValue();
                 for (int i = 0; i < events.length(); i++) {
@@ -279,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                 populateEvents();
                 caldroidListener.onChangeMonth(caldroidFragment.getMonth(), caldroidFragment.getYear());
             } catch (JSONException|ParseException|ClassCastException e) {
-                showError("[ERROR] No puc connectar al servidor: " + e.getMessage());
+                showError("[ERROR] " + e.getMessage());
             }
         }
     }
