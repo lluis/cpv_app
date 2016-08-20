@@ -278,8 +278,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 populateEvents();
                 caldroidListener.onChangeMonth(caldroidFragment.getMonth(), caldroidFragment.getYear());
-            } catch (JSONException|ParseException e) {
-                showError(e.getMessage());
+            } catch (JSONException|ParseException|ClassCastException e) {
+                showError("[ERROR] No puc connectar al servidor: " + e.getMessage());
             }
         }
     }
