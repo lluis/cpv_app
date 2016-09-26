@@ -17,7 +17,6 @@ import java.util.Locale;
 import hirondelle.date4j.DateTime;
 
 import static com.caldroid.R.drawable.disable_cell;
-import static com.caldroid.R.drawable.red_border;
 import static com.caldroid.R.drawable.red_border_gray_bg;
 
 /**
@@ -86,8 +85,11 @@ public class CaldroidCustomAdapter extends CaldroidGridAdapter {
 
         // Customize for selected dates
         if (selectedDates != null && selectedDates.indexOf(dateTime) != -1) {
-            cellView.setBackgroundColor(resources
-                    .getColor(com.caldroid.R.color.caldroid_sky_blue));
+            if (dateTime.equals(getToday())) {
+                cellView.setBackgroundResource(R.drawable.red_border_today);
+            } else {
+                cellView.setBackgroundResource(R.drawable.red_border);
+            }
 
             tv1.setTextColor(Color.BLACK);
 
@@ -98,7 +100,8 @@ public class CaldroidCustomAdapter extends CaldroidGridAdapter {
         if (shouldResetDiabledView && shouldResetSelectedView) {
             // Customize for today
             if (dateTime.equals(getToday())) {
-                cellView.setBackgroundResource(red_border);
+                cellView.setBackgroundColor(resources
+                    .getColor(com.caldroid.R.color.caldroid_sky_blue));
             } else {
                 cellView.setBackgroundResource(com.caldroid.R.drawable.cell_bg);
             }
@@ -117,12 +120,11 @@ public class CaldroidCustomAdapter extends CaldroidGridAdapter {
         try {
             String dateTimeKey = dateTime.format("YYYY-MM-DD", Locale.getDefault());
             if (extraData.containsKey(dateTimeKey)) {
-                String title = (String) extraData.get(dateTimeKey);
-                if (title != null) {
-                    //tv2.setText(title);
+                if (selectedDates != null && selectedDates.indexOf(dateTime) != -1) {
+                    cellView.setBackgroundResource(R.drawable.red_border_with_event);
+                } else {
+                    cellView.setBackgroundResource(R.color.caldroid_lighter_gray);
                 }
-            } else {
-                //tv2.setText("");
             }
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());

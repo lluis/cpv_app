@@ -135,6 +135,12 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     onChangeMonth(caldroidFragment.getMonth(), caldroidFragment.getYear());
                 }
+                // set current selected date
+                if (caldroidFragment != null) {
+                    caldroidFragment.clearSelectedDates();
+                    caldroidFragment.setSelectedDate(date);
+                    caldroidFragment.refreshView();
+                }
             }
 
             @Override
@@ -155,6 +161,9 @@ public class MainActivity extends AppCompatActivity {
                             eventsThisMonth.add(eventsHash.get(date));
                         }
                     }
+                }
+                if (caldroidFragment != null) {
+                    caldroidFragment.clearSelectedDates();
                 }
                 adapter.clear();
                 Collections.sort(eventsThisMonth);
@@ -224,8 +233,6 @@ public class MainActivity extends AppCompatActivity {
             for (Date from : eventsHash.keySet()) {
                 // mark days with events
                 if (caldroidFragment != null) {
-                    caldroidFragment.setBackgroundResourceForDate(R.color.colorPrimary, from);
-                    caldroidFragment.setTextColorForDate(R.color.caldroid_black, from);
                     extraData.put(dateFormat.format(from), eventsHash.get(from).title);
                 }
             }
