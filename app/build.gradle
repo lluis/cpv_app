@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "cat.casalpopular.casalpopular"
+        applicationId "cat.casalpopular.app"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 2
